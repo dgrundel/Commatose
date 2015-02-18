@@ -83,12 +83,12 @@ $csv->deleteColumn($index_or_header);
 
 ### Check a Column for Uniqueness
 
-Use columnValuesUnique to check if the values in a particular column are unique in that column. 
+Returns a boolean to indicate if the values in a particular column are unique in that column.
 
 For example, in a CSV of products, you might want to verify that your SKU column contains only unique values.
 
 ```
-$csv->columnValuesUnique('sku');
+$is_sku_unique = $csv->columnValuesUnique('sku');
 ```
 
 ### Transform Values in a Column
