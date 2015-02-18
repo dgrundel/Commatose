@@ -3,6 +3,8 @@ Manipulate CSV files on the fly with ease.
 
 ## Usage
 
+**See source code comments for additional usage information.**
+
 ### Instantiate and Load CSV Data
 
 ```
@@ -14,7 +16,6 @@ $csv->fromPath('/your/file/path', $has_header_row = false);
 
 // or, load from a string
 $csv->fromText($your_csv_text, $has_header_row = false);
-
 ```
 
 ### Adding Columns
@@ -23,7 +24,6 @@ You can add a column to your CSV, including column data and a default for empty 
 
 ```
 $csv->addColumn($new_header_name = null, array $new_values = array(), $default_value = '');
-
 ```
 
 ### A Quick Note About $index_or_header
@@ -42,7 +42,6 @@ If overwrite is false and the new column already exists, only empty columns will
 
 ```
 $csv->copyColumn($index_or_header, $new_header = null, $overwrite = true);
-
 ```
 
 ### Rename a Column
@@ -51,7 +50,6 @@ Maybe you just want to change the column header. No sweat.
 
 ```
 $csv->renameColumn($index_or_header, $new_header);
-
 ```
 
 ### Remove a Column
@@ -60,7 +58,6 @@ You can, of course, remove columns too. (Note: this will reindex the columns.)
 
 ```
 $csv->deleteColumn($index_or_header);
-
 ```
 
 ### Transform Values in a Column
@@ -71,7 +68,6 @@ You can use a lambda or anything that call_user_func accepts.
 
 ```
 $csv->transformColumn($index_or_header, $callable)
-
 ```
 
 ### Explode a Column into Many Columns
@@ -84,7 +80,6 @@ explodeColumn will break these into three distinct columns with correct headers 
 
 ```
 $csv->explodeColumn($index_or_header, $first_level_separator = ';', $second_level_separator  = ':', $deleteColumn = true)
-
 ```
 
 ### Output Options
@@ -105,5 +100,4 @@ echo $csv->toHtml();
 // when you're through, you can output to a string or a file
 $output = $csv->toText();
 $csv->toPath('/your/output/path');
-
 ```
