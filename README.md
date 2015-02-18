@@ -12,11 +12,32 @@ Manipulate CSV files on the fly with ease.
 $csv = new Commatose();
 
 // Grab a file (and, optionally, indicate that you have a header row)
-$csv->fromPath('/your/file/path', $has_header_row = false);
+$csv->fromPath('/your/file/path.csv', $has_header_row = false);
 
 // or, load from a string
 $csv->fromText($your_csv_text, $has_header_row = false);
 ```
+
+#### Constructor Shortcuts
+
+You may also pass your file path or CSV data to the constructor, as well as a boolean indicating whether or not a header row is present.
+
+```
+$csv = new Commatose('/your/file/path.csv', $has_header_row = false);
+//or
+$csv = new Commatose($your_csv_text, $has_header_row = false);
+```
+
+**WARNING:** You should not directly pass user input to the constructor.
+No attempt is made to escape the value received.
+
+The safest way to parse user provided CSV data is to use fromText:
+```
+$csv = new Commatose();
+$csv->fromText($the_user_input);
+```
+
+This avoids the possibility that a user could pass you a valid local file path rather than the CSV data you expect.
 
 ### Adding Columns
 
