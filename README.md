@@ -122,3 +122,18 @@ echo $csv->toHtml();
 $output = $csv->toText();
 $csv->toPath('/your/output/path');
 ```
+
+### Using Files Without a .csv Extension
+
+By default, only files with a .csv extension can be loaded.
+
+You can set which file extensions Commatose will allow by setting the valid_file_extensions array:
+
+```
+$csv->valid_file_extensions = array('csv', 'txt');
+```
+
+You can also set valid_file_extensions to boolean false to completely disable this check (not advisable!)
+```
+$csv->valid_file_extensions = false; //do not check file extensions
+```

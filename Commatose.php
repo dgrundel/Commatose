@@ -5,6 +5,7 @@ class Commatose {
 	public $wrap_quotes = true;
 	public $separator = ',';
 	public $line_ending = "\n";
+	public $valid_file_extensions = array('csv');
 
 	protected $data = null;
 	protected $header_row = null;
@@ -38,9 +39,34 @@ class Commatose {
 	}
 
 	/*
+	 * Validates file extension of a give path.
+	 */
+	public function validateFileExtension($path) {
+		if($this->valid_file_extensions === false) {
+			return true;
+		}
+
+		if(!is_string($path)) {
+			throw new Exception("validateFileExtension: path is not a string.");
+		}
+		if(!is_array($this->valid_file_extensions)) {
+			throw new Exception("validateFileExtension: valid_file_extensions is not an array.");
+		}
+		$extension = array_pop(explode('.', $path));
+		return in_array($extension, $this->valid_file_extensions);
+	}
+
+	/*
 	 * Parses a data set from a CSV file.
 	 */
 	public function fromPath($path) {
+		if(!validateFileExtension($path)) {
+			throw new Exception("fromPath: file extension not allowed.");
+		}
+		if(!is_file($path)) {
+			throw new Exception("fromPath: path is not a file.");
+		}
+
 		$text = file_get_contents($path);
 		if($text === false) {
 			throw new Exception("fromPath: file_get_contents returned false.");
