@@ -96,6 +96,9 @@ $csv->wrap_quotes = true;
 // you can also specify a separator for output other than a comma
 $csv->separator = ';';
 
+// you specify the line endings your operating system prefers
+$csv->line_ending = "\r\n"; // "\n" is default
+
 // if you'd like to see what your CSV looks like, you can spit out a table:
 echo $csv->toHtml();
 

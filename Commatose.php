@@ -4,17 +4,42 @@ class Commatose {
 	
 	public $wrap_quotes = true;
 	public $separator = ',';
+	public $line_ending = "\n";
 
 	protected $data = null;
 	protected $header_row = null;
 	protected $row_length = null;
 
-	public function __construct($text = null, $has_header_row = false) {
-		if(!empty($text)) {
-			$this->fromText($text, $has_header_row);
+	/*
+	 * Constructor
+	 *
+	 * You may pass the constructor CSV data as text or a file path to read from.
+	 *
+	 * The second argument is a boolean that indicates whether or not the data contains a header row.
+	 *
+	 * WARNING: You should not directly pass user input to the constructor.
+	 * No attempt is made to escape the value received.
+	 *
+	 * The safest way to parse user provided CSV data is to use fromText:
+	 * $csv = new Commatose();
+	 * $csv->fromText($the_user_input);
+	 *
+	 * This avoids the possibility that a user could pass you a valid local file path 
+	 * rather than the CSV data you expect.
+	 */
+	public function __construct($text_or_path = null, $has_header_row = false) {
+		if(!empty($text_or_path)) {
+			if(is_file($text_or_path) !== false) {
+				$this->fromPath($text_or_path, $has_header_row);
+			} else {
+				$this->fromText($text_or_path, $has_header_row);
+			}
 		}
 	}
 
+	/*
+	 * Parses a data set from a CSV file.
+	 */
 	public function fromPath($path) {
 		$text = file_get_contents($path);
 		if($text === false) {
@@ -23,6 +48,9 @@ class Commatose {
 		$this->fromText($text);
 	}
 
+	/*
+	 * Parses a data set from a CSV string.
+	 */
 	public function fromText($text, $has_header_row = false) {
 		$csv_lines = explode("\n", str_replace("\r\n", "\n", $text));
 		$csv_lines = array_map('trim', $csv_lines);
@@ -44,6 +72,9 @@ class Commatose {
 		$this->validateRowLengths();
 	}
 
+	/*
+	 * Sets the row length for the data set based on the header row (if present) or the first row of data.
+	 */
 	public function updateRowLength() {
 		if($this->header_row !== null) {
 			$this->row_length = count($this->header_row);
@@ -54,6 +85,9 @@ class Commatose {
 		}
 	}
 
+	/*
+	 * Validates consistency of row lengths in data set.
+	 */
 	public function validateRowLengths(array $data = null) {
 		if($data === null) {
 			$data = $this->data;
@@ -70,6 +104,29 @@ class Commatose {
 		}, $data);
 	}
 
+	/*
+	 * Escapes a single column value for CSV output.
+	 */
+	public function escapeColValue($col_value) {
+		return str_replace('"', '\"', $col_value);
+	}
+
+	/*
+	 * Returns a single row of data formatted for CSV output.
+	 */
+	public function lineToText(array $line) {
+		$line = array_map(array($this, 'escapeColValue'), $line);
+
+		if($this->wrap_quotes) {
+			return '"' . implode("\"{$this->separator}\"", $line) . '"';
+		} else {
+			return implode($this->separator, $line);
+		}
+	}
+
+	/*
+	 * Returns the data set as a CSV string.
+	 */
 	public function toText() {
 		$output = array();
 		if($this->header_row !== null) {
@@ -78,17 +135,12 @@ class Commatose {
 		foreach($this->data as $line) {
 			$output[] = $this->lineToText($line);
 		}
-		return implode("\n", $output);
+		return implode($this->line_ending, $output);
 	}
 
-	public function lineToText(array $line) {
-		if($this->wrap_quotes) {
-			return '"' . implode("\"{$this->separator}\"", $line) . '"';
-		} else {
-			return implode($this->separator, $line);
-		}
-	}
-
+	/*
+	 * Writes the data set as a CSV to a file path.
+	 */
 	public function toPath($path) {
 		$bytes = file_put_contents($path, $this->toText());
 
@@ -97,16 +149,23 @@ class Commatose {
 		}
 	}
 
+	/*
+	 * Returns the data set as an HTML table with row indexes and headers when present.
+	 */
 	public function toHtml() {
 		$html = '<table>';
 		
+		$html .= '<thead><tr><th>#</th>';
 		if($this->header_row !== null) {
-			$html .= '<thead><tr><th>#</th>';
 			foreach($this->header_row as $col_name) {
 				$html .= '<th>' . htmlspecialchars($col_name) . '</th>';
 			}
-			$html .= '</tr></thead><tbody>';
+		} else {
+			for($header_index = 0; $header_index < $this->row_length; $header_index++) {
+				$html .= '<th>' . $header_index . '</th>';
+			}
 		}
+		$html .= '</tr></thead><tbody>';
 
 		foreach($this->data as $row_index => $row) {
 			$html .= '<tr><th>' . $row_index . '</th>';
@@ -119,10 +178,22 @@ class Commatose {
 		return $html;
 	}
 
+	/*
+	 * Returns true if the column exists in the header row.
+	 */
 	public function columnExists($index_or_header) {
+		if($this->header_row === null) {
+			throw new Exception("columnExists: no header row present.");
+		}
 		return in_array($index_or_header, $this->header_row);
 	}
 
+	/*
+	 * Gets the 0-based index of the column in the header and/or data set.
+	 *
+	 * Throws an exception if $index_or_header is not found, so it is best to check 
+	 * if the column exists (via columnExists) prior to using this function.
+	 */
 	public function getColIndex($index_or_header) {
 		if(empty($index_or_header)) {
 			throw new Exception("getColIndex: index_or_header cannot be empty.");
@@ -140,6 +211,9 @@ class Commatose {
 		return $col_index;
 	}
 
+	/*
+	 * Applies a callback function to each row of a particular column in the data set.
+	 */
 	public function transformColumn($index_or_header, $callable) {
 		$col_index = $this->getColIndex($index_or_header);
 
@@ -148,9 +222,17 @@ class Commatose {
 		}
 	}
 
+	/*
+	 * Copies a column to a new or existing column.
+	 *
+	 * When overwrite is false and the destination column exists, only empty values are overwritten in the destination.
+	 */
 	public function copyColumn($index_or_header, $new_header = null, $overwrite = true) {
 		if($new_header === null && $this->header_row !== null) {
 			throw new Exception("copyColumn: new_header is required with header row present.");
+		}
+		if($new_header !== null && $this->header_row === null) {
+			throw new Exception("copyColumn: new_header must be null when no header row present.");
 		}
 		
 		$col_index = $this->getColIndex($index_or_header);
@@ -174,6 +256,16 @@ class Commatose {
 		$this->updateRowLength();
 	}
 
+	/*
+	 * Adds a new column to the data set.
+	 *
+	 * $new_header is optional when no header row is present.
+	 *
+	 * When an array of $new_values is passed, values are put into the new column 
+	 * matching the 0-based array indexes with the 0-based row indexes of the data set.
+	 *
+	 * The $default_value is used when no value is found in $new_values for the corresponding new row.
+	 */
 	public function addColumn($new_header = null, array $new_values = array(), $default_value = '') {
 		if($new_header === null && $this->header_row !== null) {
 			throw new Exception("addColumn: new_header is required with header row present.");
@@ -190,6 +282,11 @@ class Commatose {
 		$this->updateRowLength();
 	}
 
+	/*
+	 * Rename a column header. 
+	 *
+	 * Any references to this column after the rename operation should reference the new name.
+	 */
 	public function renameColumn($index_or_header, $new_header) {
 		if($this->header_row === null) {
 			throw new Exception("renameColumn: no header row present.");
@@ -199,6 +296,11 @@ class Commatose {
 		$this->header_row[$col_index] = $new_header;
 	}
 
+	/*
+	 * Delete a column from the data set. 
+	 *
+	 * Both the column header and the data in the column are removed and the columns are reindexed.
+	 */
 	public function deleteColumn($index_or_header) {
 		$col_index = $this->getColIndex($index_or_header);
 		
@@ -211,19 +313,37 @@ class Commatose {
 		$this->updateRowLength();
 	}
 
-	public function explodeColumn($index_or_header, $first_level_separator = ';', $second_level_separator  = ':', $deleteColumn = true) {
+	/*
+	 * Explode a column into many columns.
+	 *
+	 * A simple, single level explode takes a column header like 'Colors' with a value like 'red,green,blue'
+	 * and splits it into three columns with column headers 'Colors0', 'Colors1', and 'Colors2'
+	 *
+	 * A two-level explode takes values like 'color:red;size:large;shape:round'
+	 * and splits it into three columns with column headers 'color', 'size', and 'shape' 
+	 * with the corresponding values in their respective rows. 
+	 * The source column header does not affect the resulting rows.
+	 *
+	 * When $deleteColumn is true, the original column is removed from the data set, leaving only the new columns.
+	 */
+	public function explodeColumn($index_or_header, $first_level_separator, $second_level_separator = null, $deleteColumn = true) {
 		$col_index = $this->getColIndex($index_or_header);
 
 		$new_columns = array();
 
 		for($data_index = 0; $data_index < count($this->data); $data_index++) {
-			$first_level_pairs = explode($first_level_separator, $this->data[$data_index][$col_index]);
-			foreach ($first_level_pairs as $first_level_pair) {
-				$second_level_pair = explode($second_level_separator, $first_level_pair);
-				if(count($second_level_pair) !== 2) {
-					throw new Exception("explodeColumn: second level pair not split.");
+			$first_level_items = explode($first_level_separator, $this->data[$data_index][$col_index]);
+			foreach ($first_level_items as $first_level_item_index => $first_level_item) {
+				
+				if($second_level_separator !== null) {
+					$second_level_pair = explode($second_level_separator, $first_level_item);
+					if(count($second_level_pair) !== 2) {
+						throw new Exception("explodeColumn: second level pair not split.");
+					}
+					$new_columns[ $second_level_pair[0] ][$data_index] = $second_level_pair[1];
+				} else {
+					$new_columns[ $index_or_header . $first_level_item_index ][$data_index] = $first_level_item;
 				}
-				$new_columns[ $second_level_pair[0] ][$data_index] = $second_level_pair[1];
 			}
 		}
 
