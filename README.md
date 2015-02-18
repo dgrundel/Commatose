@@ -109,7 +109,7 @@ For example, let's say you have a column with values like "color:red;size:large;
 
 explodeColumn will break these into three distinct columns with correct headers and values.
 
-If second_level_separator is omitted, column headers will be automatically generated based on the original column header.
+If $second_level_separator is omitted, column headers will be automatically generated based on the original column header. (HeaderName0, HeaderName1, etc.)
 
 ```
 $csv->explodeColumn($index_or_header, $first_level_separator, $second_level_separator = null, $deleteColumn = false)
@@ -119,7 +119,7 @@ $csv->explodeColumn($index_or_header, $first_level_separator, $second_level_sepa
 
 Combine the values of two or more columns using a callback function to modify the values.
 
-Column values are passed as individual arguments to your callback function (via call_user_func_array) in the order specified in your indexes_or_headers array.
+Column values are passed as individual arguments to your callback function (via call_user_func_array) in the order specified in your $indexes_or_headers array.
 
 ```
 $csv->combineColumns(array $indexes_or_headers, $new_header, $callable, $deleteColumns = false)
