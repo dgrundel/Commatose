@@ -81,6 +81,16 @@ You can, of course, remove columns too. (Note: this will reindex the columns.)
 $csv->deleteColumn($index_or_header);
 ```
 
+### Check a Column for Uniqueness
+
+Use columnValuesUnique to check if the values in a particular column are unique in that column. 
+
+For example, in a CSV of products, you might want to verify that your SKU column contains only unique values.
+
+```
+$csv->columnValuesUnique('sku');
+```
+
 ### Transform Values in a Column
 
 transformColumn lets you apply a function to every value in a column. It's like array_map for a single column.
@@ -99,8 +109,30 @@ For example, let's say you have a column with values like "color:red;size:large;
 
 explodeColumn will break these into three distinct columns with correct headers and values.
 
+If second_level_separator is omitted, column headers will be automatically generated based on the original column header.
+
 ```
-$csv->explodeColumn($index_or_header, $first_level_separator = ';', $second_level_separator  = ':', $deleteColumn = true)
+$csv->explodeColumn($index_or_header, $first_level_separator, $second_level_separator = null, $deleteColumn = false)
+```
+
+### Combine Many Columns into One
+
+Combine the values of two or more columns using a callback function to modify the values.
+
+Column values are passed as individual arguments to your callback function (via call_user_func_array) in the order specified in your indexes_or_headers array.
+
+```
+$csv->combineColumns(array $indexes_or_headers, $new_header, $callable, $deleteColumns = false)
+```
+
+### Explode Rows with Multiple Values per Column
+
+Similar to exploding columns, you can also explode rows that have multiple values per column into many rows with one value per column.
+
+So, one row of data with a column of 'red;green;blue' could be exploded into three distinct rows. (Other columns in the row are duplicated.)
+
+```
+$csv->explodeRows($index_or_header, $separator);
 ```
 
 ### Output Options

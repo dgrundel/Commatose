@@ -352,7 +352,7 @@ class Commatose {
 	 *
 	 * When $deleteColumn is true, the original column is removed from the data set, leaving only the new columns.
 	 */
-	public function explodeColumn($index_or_header, $first_level_separator, $second_level_separator = null, $deleteColumn = true) {
+	public function explodeColumn($index_or_header, $first_level_separator, $second_level_separator = null, $deleteColumn = false) {
 		$col_index = $this->getColIndex($index_or_header);
 
 		$new_columns = array();
@@ -391,5 +391,76 @@ class Commatose {
 			$this->updateRowLength();
 		}
 
+	}
+
+	/*
+	 * Explode rows with multiple values per column into many rows with one value per column.
+	 */
+	public function explodeRows($index_or_header, $separator) {
+		$col_index = $this->getColIndex($index_or_header);
+		$new_rows = array();
+		$delete_rows = array();
+
+		for($data_index = 0; $data_index < count($this->data); $data_index++) {
+			$col_values = explode($separator, $this->data[$data_index][$col_index]);
+			if(count($col_values) > 1) {
+				$new_row = $this->data[$data_index];
+				foreach ($col_values as $col_value) {
+					$new_row[$col_index] = $col_value;
+					$new_rows[] = $new_row;
+				}
+				$delete_rows[] = $data_index;
+			}
+		}
+
+		foreach ($delete_rows as $data_index) {
+			unset($this->data[$data_index]);
+		}
+
+		//reindex and add new rows
+		if(count($new_rows)) {
+			$this->data = array_merge(array_values($this->data), $new_rows);
+		}
+	}
+
+	/*
+	 * Returns true when all values in a column are unique
+	 */
+	public function columnValuesUnique($index_or_header) {
+		$col_index = $this->getColIndex($index_or_header);
+
+		$col_values = array_column($this->data, $col_index);
+		$unique_values = array_unique($col_values);
+		return count($col_values) === count($unique_values);
+	}
+
+	/*
+	 * Combine the values of two or more columns using a callback function to modify the values
+	 */
+	public function combineColumns(array $indexes_or_headers, $new_header, $callable, $deleteColumns = false) {
+		$col_indexes = array();
+		foreach ($indexes_or_headers as $index_or_header) {
+			$col_indexes[] = $this->getColIndex($index_or_header);
+		}
+
+		if($this->header_row !== null) {
+			$this->header_row[] = $new_header;
+		}
+
+		for($data_index = 0; $data_index < count($this->data); $data_index++) {
+			$col_values = array();
+			foreach ($col_indexes as $col_index) {
+				$col_values[] = $this->data[$data_index][$col_index];
+			}
+
+			$this->data[$data_index][] = call_user_func_array($callable, $col_values);
+		}
+
+		if($deleteColumns) {
+			$this->deleteColumn($index_or_header_a);
+			$this->deleteColumn($index_or_header_b);
+		} else {
+			$this->updateRowLength();
+		}
 	}
 }
