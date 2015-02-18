@@ -125,7 +125,7 @@ $csv->toPath('/your/output/path');
 
 ### Using Files Without a .csv Extension
 
-By default, only files with a .csv extension can be loaded.
+**By default, only files with a .csv extension can be loaded.**
 
 You can set which file extensions Commatose will allow by setting the valid_file_extensions array:
 
@@ -137,3 +137,9 @@ You can also set valid_file_extensions to boolean false to completely disable th
 ```
 $csv->valid_file_extensions = false; //do not check file extensions
 ```
+
+### Commatose Throws Exceptions
+
+Fair warning: Rather than fail silently (or just returing false here and there) and keep you guessing, Commatose likes to throw exceptions.
+
+It is advisable when working with unfamiliar data to wrap some or all of your calls to Commatose in a try...catch block to avoid nasty errors from being displayed to your users.
