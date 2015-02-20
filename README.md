@@ -30,7 +30,9 @@ $csv = new Commatose('/your/file/path.csv', $has_header_row = false);
 $csv = new Commatose($your_csv_text, $has_header_row = false);
 ```
 
-**WARNING:** You should not directly pass user input to the constructor.
+##### WARNING
+
+**You should not directly pass user input to the constructor.**
 No attempt is made to escape the value received.
 
 The safest way to parse user provided CSV data is to use fromText:
@@ -43,6 +45,16 @@ This avoids the possibility that a user could pass you a valid local file path r
 
 
 
+### A Quick Note About $index_or_header
+
+Most of the methods below accept a parameter named $index_or_header.
+
+The easiest route is to use a CSV with a header row and reference columns using those header names.
+
+However, if you don't have a header row, you can supply a 0-based integer column index.
+
+
+
 ### Adding Columns
 
 You can add a column to your CSV, including column data and a default for empty rows.
@@ -51,15 +63,7 @@ You can add a column to your CSV, including column data and a default for empty 
 $csv->addColumn($new_header_name = null, array $new_values = array(), $default_value = '');
 ```
 
-
-
-### A Quick Note About $index_or_header
-
-The methods below accept a parameter named $index_or_header.
-
-The easiest route is to use a CSV with a header row and reference columns using those header names.
-
-However, if you don't have a header row, you can supply a 0-based integer column index.
+Indexes in the $new_values array should be 0-based and correspond with the rows in your data set (also 0-based).
 
 
 
@@ -159,9 +163,9 @@ $csv->explodeRows($index_or_header, $separator);
 
 
 
-### Output Options
+## CSV Output Options
 
-#### Output Format
+### Formatting Output
 
 ```
 // you can tell Commatose if you want the output wrapped in quotes (default is true, which is safest)
@@ -174,14 +178,14 @@ $csv->separator = ';';
 $csv->line_ending = "\r\n"; // "\n" is default
 ```
 
-#### CSV to HTML Table
+### CSV to HTML Table
 
 If you'd like to see what your CSV looks like, you can spit out a table:
 ```
 echo $csv->toHtml();
 ```
 
-#### Output to a variable (as a string) or to a local file
+### Output to a variable (as a string) or to a local file
 
 You can get the text content of the CSV output and save it to a variable using toText:
 
@@ -195,7 +199,7 @@ Or, you can save it to a file on your server with toPath:
 $csv->toPath('/your/output/path');
 ```
 
-#### Send to Browser as a Download
+### Send to Browser as a Download
 
 If you want to pass the CSV directly to the browser as a download, you can do that, too. Just use toDownload:
 
@@ -211,7 +215,7 @@ In short, toDownload should be the first and last method thing to send data to t
 
 
 
-### Using Files Without a .csv Extension
+## Using Files Without a .csv Extension
 
 **By default, only files with a .csv extension can be loaded.**
 
@@ -228,7 +232,7 @@ $csv->valid_file_extensions = false; //do not check file extensions
 
 
 
-### Commatose Throws Exceptions
+## Commatose Throws Exceptions
 
 Fair warning: Rather than fail silently (or just returing false here and there) and keep you guessing, Commatose likes to throw exceptions.
 

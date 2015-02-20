@@ -125,7 +125,7 @@ class Commatose {
 
 		array_map(function($line) {
 			if(count($line) !== $this->row_length) {
-				throw new Exception("validateRowLengths: row length inconsistent. line: " . var_export($line, true));
+				throw new Exception("validateRowLengths: row length inconsistent. line: " . $this->lineToText($line));
 			}
 		}, $data);
 	}
@@ -252,7 +252,8 @@ class Commatose {
 		$col_index = false;
 		if(is_numeric($index_or_header)) {
 			$col_index = intval($index_or_header);
-		} else {
+
+		} elseif($this->header_row !== null) {
 			$col_index = array_search($index_or_header, $this->header_row);
 		}
 		if($col_index === false) {
