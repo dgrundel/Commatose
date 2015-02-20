@@ -3,7 +3,9 @@ Manipulate CSV files on the fly with ease.
 
 ## Usage
 
-**See source code comments for additional usage information.**
+**See source code and source comments for additional usage information.**
+
+
 
 ### Instantiate and Load CSV Data
 
@@ -39,6 +41,8 @@ $csv->fromText($the_user_input);
 
 This avoids the possibility that a user could pass you a valid local file path rather than the CSV data you expect.
 
+
+
 ### Adding Columns
 
 You can add a column to your CSV, including column data and a default for empty rows.
@@ -47,6 +51,8 @@ You can add a column to your CSV, including column data and a default for empty 
 $csv->addColumn($new_header_name = null, array $new_values = array(), $default_value = '');
 ```
 
+
+
 ### A Quick Note About $index_or_header
 
 The methods below accept a parameter named $index_or_header.
@@ -54,6 +60,8 @@ The methods below accept a parameter named $index_or_header.
 The easiest route is to use a CSV with a header row and reference columns using those header names.
 
 However, if you don't have a header row, you can supply a 0-based integer column index.
+
+
 
 ### Copying Columns
 
@@ -65,6 +73,8 @@ If overwrite is false and the new column already exists, only empty columns will
 $csv->copyColumn($index_or_header, $new_header = null, $overwrite = true);
 ```
 
+
+
 ### Rename a Column
 
 Maybe you just want to change the column header. No sweat.
@@ -73,6 +83,8 @@ Maybe you just want to change the column header. No sweat.
 $csv->renameColumn($index_or_header, $new_header);
 ```
 
+
+
 ### Remove a Column
 
 You can, of course, remove columns too. (Note: this will reindex the columns.)
@@ -80,6 +92,8 @@ You can, of course, remove columns too. (Note: this will reindex the columns.)
 ```
 $csv->deleteColumn($index_or_header);
 ```
+
+
 
 ### Check a Column for Uniqueness
 
@@ -91,6 +105,8 @@ For example, in a CSV of products, you might want to verify that your SKU column
 $is_sku_unique = $csv->columnValuesUnique('sku');
 ```
 
+
+
 ### Transform Values in a Column
 
 transformColumn lets you apply a function to every value in a column. It's like array_map for a single column.
@@ -100,6 +116,8 @@ You can use a lambda or anything that call_user_func accepts.
 ```
 $csv->transformColumn($index_or_header, $callable)
 ```
+
+
 
 ### Explode a Column into Many Columns
 
@@ -115,6 +133,8 @@ If $second_level_separator is omitted, column headers will be automatically gene
 $csv->explodeColumn($index_or_header, $first_level_separator, $second_level_separator = null, $deleteColumn = false)
 ```
 
+
+
 ### Combine Many Columns into One
 
 Combine the values of two or more columns using a callback function to modify the values.
@@ -124,6 +144,8 @@ Column values are passed as individual arguments to your callback function (via 
 ```
 $csv->combineColumns(array $indexes_or_headers, $new_header, $callable, $deleteColumns = false)
 ```
+
+
 
 ### Explode Rows with Multiple Values per Column
 
@@ -135,7 +157,11 @@ So, one row of data with a column of 'red;green;blue' could be exploded into thr
 $csv->explodeRows($index_or_header, $separator);
 ```
 
+
+
 ### Output Options
+
+#### Output Format
 
 ```
 // you can tell Commatose if you want the output wrapped in quotes (default is true, which is safest)
@@ -146,14 +172,44 @@ $csv->separator = ';';
 
 // you specify the line endings your operating system prefers
 $csv->line_ending = "\r\n"; // "\n" is default
+```
 
-// if you'd like to see what your CSV looks like, you can spit out a table:
+#### CSV to HTML Table
+
+If you'd like to see what your CSV looks like, you can spit out a table:
+```
 echo $csv->toHtml();
+```
 
-// when you're through, you can output to a string or a file
+#### Output to a variable (as a string) or to a local file
+
+You can get the text content of the CSV output and save it to a variable using toText:
+
+```
 $output = $csv->toText();
+```
+
+Or, you can save it to a file on your server with toPath:
+
+```
 $csv->toPath('/your/output/path');
 ```
+
+#### Send to Browser as a Download
+
+If you want to pass the CSV directly to the browser as a download, you can do that, too. Just use toDownload:
+
+```
+$csv->toDownload('your awesome file name.csv');
+```
+
+The file name argument is optional and defaults to 'download.csv'
+
+Note that toDownload sets the content-type and content-disposition headers for you. If you get a 'headers already sent' error message, make sure you're calling toDownload before anything is echoed out to the browser.
+
+In short, toDownload should be the first and last method thing to send data to the browser.
+
+
 
 ### Using Files Without a .csv Extension
 
@@ -169,6 +225,8 @@ You can also set valid_file_extensions to boolean false to completely disable th
 ```
 $csv->valid_file_extensions = false; //do not check file extensions
 ```
+
+
 
 ### Commatose Throws Exceptions
 

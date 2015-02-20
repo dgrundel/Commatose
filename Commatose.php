@@ -134,7 +134,7 @@ class Commatose {
 	 * Escapes a single column value for CSV output.
 	 */
 	public function escapeColValue($col_value) {
-		return str_replace('"', '\"', $col_value);
+		return str_replace('"', '""', $col_value);
 	}
 
 	/*
@@ -173,6 +173,30 @@ class Commatose {
 		if($bytes === false) {
 			throw new Exception("toPath: file_put_contents returned false.");
 		}
+	}
+
+	/*
+	 * Send the CSV to the browser as a downloadable file.
+	 */
+	public function toDownload($filename = null) {
+		if(empty($filename)) {
+			$filename = 'download.csv';
+		}
+
+		$filename = str_replace('"', '\'', $filename);
+
+		$text = $this->toText();
+
+		header('Content-Type: text/csv');
+		header('Content-Disposition: attachment; filename="' . $filename . '"');
+		header('Expires: 0');
+		header('Cache-Control: must-revalidate');
+		header('Pragma: public');
+		header('Content-Length: ' . strlen($text));
+
+		echo $text;
+		
+		exit;
 	}
 
 	/*
