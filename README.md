@@ -8,7 +8,6 @@ Manipulate CSV files on the fly with ease.
 
 
 ### Instantiate and Load CSV Data
-
 ```
 // Instantiate Commatose
 $csv = new Commatose();
@@ -23,7 +22,6 @@ $csv->fromText($your_csv_text, $has_header_row = false);
 #### Constructor Shortcuts
 
 You may also pass your file path or CSV data to the constructor, as well as a boolean indicating whether or not a header row is present.
-
 ```
 $csv = new Commatose('/your/file/path.csv', $has_header_row = false);
 //or
@@ -33,6 +31,7 @@ $csv = new Commatose($your_csv_text, $has_header_row = false);
 ##### WARNING
 
 **You should not directly pass user input to the constructor.**
+
 No attempt is made to escape the value received.
 
 The safest way to parse user provided CSV data is to use fromText:
@@ -49,7 +48,7 @@ This avoids the possibility that a user could pass you a valid local file path r
 
 Most of the methods below accept a parameter named $index_or_header.
 
-The easiest route is to use a CSV with a header row and reference columns using those header names.
+The easiest route is to use a CSV with a header row and reference columns using those header names, like 'Product Description', 'SKU', etc.
 
 However, if you don't have a header row, you can supply a 0-based integer column index.
 
@@ -58,7 +57,6 @@ However, if you don't have a header row, you can supply a 0-based integer column
 ### Adding Columns
 
 You can add a column to your CSV, including column data and a default for empty rows.
-
 ```
 $csv->addColumn($new_header_name = null, array $new_values = array(), $default_value = '');
 ```
@@ -72,7 +70,6 @@ Indexes in the $new_values array should be 0-based and correspond with the rows 
 You can also copy an existing column to a new column (or over another existing column.)
 
 If overwrite is false and the new column already exists, only empty columns will be overwritten in the copy.
-
 ```
 $csv->copyColumn($index_or_header, $new_header = null, $overwrite = true);
 ```
@@ -82,7 +79,6 @@ $csv->copyColumn($index_or_header, $new_header = null, $overwrite = true);
 ### Rename a Column
 
 Maybe you just want to change the column header. No sweat.
-
 ```
 $csv->renameColumn($index_or_header, $new_header);
 ```
@@ -92,7 +88,6 @@ $csv->renameColumn($index_or_header, $new_header);
 ### Remove a Column
 
 You can, of course, remove columns too. (Note: this will reindex the columns.)
-
 ```
 $csv->deleteColumn($index_or_header);
 ```
@@ -104,7 +99,6 @@ $csv->deleteColumn($index_or_header);
 Returns a boolean to indicate if the values in a particular column are unique in that column.
 
 For example, in a CSV of products, you might want to verify that your SKU column contains only unique values.
-
 ```
 $is_sku_unique = $csv->columnValuesUnique('sku');
 ```
@@ -116,7 +110,6 @@ $is_sku_unique = $csv->columnValuesUnique('sku');
 transformColumn lets you apply a function to every value in a column. It's like array_map for a single column.
 
 You can use a lambda or anything that call_user_func accepts.
-
 ```
 $csv->transformColumn($index_or_header, $callable)
 ```
@@ -124,7 +117,6 @@ $csv->transformColumn($index_or_header, $callable)
 #### transformColumn Example
 
 In this example, we have a column in our CSV that contains the file name of a product image, but we need it to contain the full path to the image file. All of our images are in '/some/root/path'.
-
 ```
 // Data Before
 // Headers:  ['file name']
@@ -150,7 +142,6 @@ For example, let's say you have a column with values like "color:red;size:large;
 explodeColumn will break these into three distinct columns with correct headers and values.
 
 If $second_level_separator is omitted, column headers will be automatically generated based on the original column header. (HeaderName0, HeaderName1, etc.)
-
 ```
 $csv->explodeColumn($index_or_header, $first_level_separator, $second_level_separator = null, $deleteColumn = false)
 ```
@@ -158,7 +149,6 @@ $csv->explodeColumn($index_or_header, $first_level_separator, $second_level_sepa
 #### explodeColumn Example
 
 Many product data feeds lump product attributes together in a single general-purpose column. explodeColumn will break these out into their own columns.
-
 ```
 // Data Before
 // Headers:  ['attributes']
@@ -178,7 +168,6 @@ $csv->explodeColumn('attributes', ';', ':', true); //note that 'true' deletes th
 Combine the values of two or more columns using a callback function to create an aggregate value.
 
 Column values are passed as individual arguments to your callback function (via call_user_func_array) in the order specified in your $indexes_or_headers array.
-
 ```
 $csv->combineColumns(array $indexes_or_headers, $new_header, $callable, $deleteColumns = false)
 ```
@@ -186,7 +175,6 @@ $csv->combineColumns(array $indexes_or_headers, $new_header, $callable, $deleteC
 #### combineColumns Example
 
 In this example, we're selling shirts. We have a column for the shirt size and a column for the corresponding gender. (There's a big difference between a men's large and a women's large!) We want to create a column that gives us the full name of the size.
-
 ```
 // Data Before
 // Headers:  ['gender', 'size']
@@ -208,7 +196,6 @@ $csv->combineColumns(['gender', 'size'], 'Gender Size', function($gender, $size)
 Similar to exploding columns, you can also explode rows that have multiple values per column into many rows with one value per column.
 
 So, one row of data with a column of 'red;green;blue' could be exploded into three distinct rows. (Other columns in the row are duplicated.)
-
 ```
 $csv->explodeRows($index_or_header, $separator);
 ```
@@ -216,7 +203,6 @@ $csv->explodeRows($index_or_header, $separator);
 #### explodeRows Example
 
 In this example, we have a column that contains a list of available sizes for a product. We want to break this out into a single row for each size.
-
 ```
 // Data Before
 // Headers:  ['sizes']
@@ -238,15 +224,19 @@ $csv->explodeRows('sizes', ',');
 
 ### Formatting Output
 
+Tell Commatose if you want the output wrapped in quotes:
 ```
-// you can tell Commatose if you want the output wrapped in quotes (default is true, which is safest)
-$csv->wrap_quotes = true;
+$csv->wrap_quotes = true; // default is true
+```
 
-// you can also specify a separator for output other than a comma
-$csv->separator = ';';
+Specify a separator/delimiter for output other than a comma:
+```
+$csv->separator = ';'; // default is ','
+```
 
-// you specify the line endings your operating system prefers
-$csv->line_ending = "\r\n"; // "\n" is default
+Specify the line endings your operating system prefers:
+```
+$csv->line_ending = "\r\n"; // default is "\n"
 ```
 
 ### CSV to HTML Table
@@ -259,13 +249,11 @@ echo $csv->toHtml();
 ### Output to a variable (as a string) or to a local file
 
 You can get the text content of the CSV output and save it to a variable using toText:
-
 ```
 $output = $csv->toText();
 ```
 
 Or, you can save it to a file on your server with toPath:
-
 ```
 $csv->toPath('/your/output/path');
 ```
@@ -273,7 +261,6 @@ $csv->toPath('/your/output/path');
 ### Send to Browser as a Download
 
 If you want to pass the CSV directly to the browser as a download, you can do that, too. Just use toDownload:
-
 ```
 $csv->toDownload('your awesome file name.csv');
 ```
@@ -291,7 +278,6 @@ In short, toDownload should be the first and last method thing to send data to t
 **By default, only files with a .csv extension can be loaded.**
 
 You can set which file extensions Commatose will allow by setting the valid_file_extensions array:
-
 ```
 $csv->valid_file_extensions = array('csv', 'txt');
 ```
