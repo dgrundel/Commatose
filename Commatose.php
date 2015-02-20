@@ -178,23 +178,31 @@ class Commatose {
 	/*
 	 * Send the CSV to the browser as a downloadable file.
 	 */
-	public function toDownload($filename = null) {
+	public function toDownload($filename = null, array $headers = array()) {
 		if(empty($filename)) {
 			$filename = 'download.csv';
 		}
 
 		$filename = str_replace('"', '\'', $filename);
 
-		$text = $this->toText();
+		$csvText = $this->toText();
 
-		header('Content-Type: text/csv');
-		header('Content-Disposition: attachment; filename="' . $filename . '"');
-		header('Expires: 0');
-		header('Cache-Control: must-revalidate');
-		header('Pragma: public');
-		header('Content-Length: ' . strlen($text));
+		$headers = array_merge(array(
+			'Content-Type' => 'text/csv',
+			'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+			'Expires' => '0',
+			'Cache-Control' => 'must-revalidate',
+			'Pragma' => 'public',
+			'Content-Length' => strlen($csvText),
+		), $headers);
 
-		echo $text;
+		foreach ($headers as $name => $value) {
+			if($value !== null) {
+				header("{$name}: {$value}");
+			}
+		}
+
+		echo $csvText;
 		
 		exit;
 	}

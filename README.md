@@ -32,9 +32,7 @@ $csv = new Commatose($your_csv_text, $has_header_row = false);
 
 **You should not directly pass user input to the constructor.**
 
-No attempt is made to escape the value received.
-
-The safest way to parse user provided CSV data is to use fromText:
+No attempt is made to escape the value received. The safest way to parse user provided CSV data is to explicitly use fromText:
 ```
 $csv = new Commatose();
 $csv->fromText($the_user_input);
@@ -262,14 +260,29 @@ $csv->toPath('/your/output/path');
 
 If you want to pass the CSV directly to the browser as a download, you can do that, too. Just use toDownload:
 ```
-$csv->toDownload('your awesome file name.csv');
+$csv->toDownload('your awesome file name.csv', $headers = array());
 ```
 
 The file name argument is optional and defaults to 'download.csv'
 
-Note that toDownload sets the content-type and content-disposition headers for you. If you get a 'headers already sent' error message, make sure you're calling toDownload before anything is echoed out to the browser.
+$headers is also optional and defaults to the following:
 
-In short, toDownload should be the first and last method thing to send data to the browser.
+```
+$default_headers = array(
+	'Content-Type' => 'text/csv',
+	'Content-Disposition' => 'attachment; filename="' . $escapedFileName . '"',
+	'Expires' => '0',
+	'Cache-Control' => 'must-revalidate',
+	'Pragma' => 'public',
+	'Content-Length' => strlen($csvText),
+);
+```
+
+The $default_headers array is merged with the $headers argument. To remove one of the defaults, set it to null and it will not be sent to the browser.
+
+The 'Content-Length' header is always sent.
+
+Note that toDownload sends the proper headers for you by default. If you get a 'headers already sent' error message, make sure you're calling toDownload before anything is echoed out to the browser. In short, toDownload should be the first and last method thing to send data to the browser.
 
 
 
