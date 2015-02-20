@@ -268,7 +268,8 @@ The file name argument is optional and defaults to 'download.csv'
 $headers is also optional and defaults to the following:
 
 ```
-$default_headers = array(
+// default headers; set to null in your headers argument to remove
+array(
 	'Content-Type' => 'text/csv',
 	'Content-Disposition' => 'attachment; filename="' . $escapedFileName . '"',
 	'Expires' => '0',
@@ -279,8 +280,6 @@ $default_headers = array(
 ```
 
 The $default_headers array is merged with the $headers argument. To remove one of the defaults, set it to null and it will not be sent to the browser.
-
-The 'Content-Length' header is always sent.
 
 Note that toDownload sends the proper headers for you by default. If you get a 'headers already sent' error message, make sure you're calling toDownload before anything is echoed out to the browser. In short, toDownload should be the first and last method thing to send data to the browser.
 
