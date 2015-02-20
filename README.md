@@ -175,7 +175,7 @@ $csv->explodeColumn('attributes', ';', ':', true); //note that 'true' deletes th
 
 ### Combine Many Columns into One
 
-Combine the values of two or more columns using a callback function to modify the values.
+Combine the values of two or more columns using a callback function to create an aggregate value.
 
 Column values are passed as individual arguments to your callback function (via call_user_func_array) in the order specified in your $indexes_or_headers array.
 
@@ -185,7 +185,7 @@ $csv->combineColumns(array $indexes_or_headers, $new_header, $callable, $deleteC
 
 #### combineColumns Example
 
-Sometimes you need to combine values from multiple columns into a single column to create an aggregate value.
+In this example, we're selling shirts. We have a column for the shirt size and a column for the corresponding gender. (There's a big difference between a men's large and a women's large!) We want to create a column that gives us the full name of the size.
 
 ```
 // Data Before
