@@ -121,6 +121,24 @@ You can use a lambda or anything that call_user_func accepts.
 $csv->transformColumn($index_or_header, $callable)
 ```
 
+#### transformColumn Example
+
+In this example, we have a column in our CSV that contains the file name of a product image, but we need it to contain the full path to the image file. All of our images are in '/some/root/path'.
+
+```
+// Data Before
+// Headers:  ['file name']
+// Row Data: ['product_image.jpg']
+
+$csv->transformColumn('file name', function($columnData){
+	return '/some/root/path/' . $columnData;
+})
+
+// Data After
+// Headers:  ['file name']
+// Row Data: ['/some/root/path/product_image.jpg']
+```
+
 
 
 ### Explode a Column into Many Columns
@@ -137,6 +155,22 @@ If $second_level_separator is omitted, column headers will be automatically gene
 $csv->explodeColumn($index_or_header, $first_level_separator, $second_level_separator = null, $deleteColumn = false)
 ```
 
+#### explodeColumn Example
+
+Many product data feeds lump product attributes together in a single general-purpose column. explodeColumn will break these out into their own columns.
+
+```
+// Data Before
+// Headers:  ['attributes']
+// Row Data: ['color:red;size:large;shape:round']
+
+$csv->explodeColumn('attributes', ';', ':', true); //note that 'true' deletes the original column
+
+// Data After
+// Headers:  ['color', 'size', 'shape']
+// Row Data: ['red', 'large', 'round']
+```
+
 
 
 ### Combine Many Columns into One
@@ -149,6 +183,24 @@ Column values are passed as individual arguments to your callback function (via 
 $csv->combineColumns(array $indexes_or_headers, $new_header, $callable, $deleteColumns = false)
 ```
 
+#### combineColumns Example
+
+Sometimes you need to combine values from multiple columns into a single column to create an aggregate value.
+
+```
+// Data Before
+// Headers:  ['gender', 'size']
+// Row Data: ['Men', 'Large']
+
+$csv->combineColumns(['gender', 'size'], 'Gender Size', function($gender, $size){
+	return "{$gender}'s {$size}";
+});
+
+// Data After
+// Headers:  ['gender', 'size', 'Gender Size']
+// Row Data: ['Men', 'Large', "Men's Large"]
+```
+
 
 
 ### Explode Rows with Multiple Values per Column
@@ -159,6 +211,25 @@ So, one row of data with a column of 'red;green;blue' could be exploded into thr
 
 ```
 $csv->explodeRows($index_or_header, $separator);
+```
+
+#### explodeRows Example
+
+In this example, we have a column that contains a list of available sizes for a product. We want to break this out into a single row for each size.
+
+```
+// Data Before
+// Headers:  ['sizes']
+// Row Data: ['Small,Medium,Large,XL']
+
+$csv->explodeRows('available sizes', ',');
+
+// Data After
+// Headers:  ['sizes']
+// Row Data: ['Small']
+// Row Data: ['Medium']
+// Row Data: ['Large']
+// Row Data: ['XL']
 ```
 
 
