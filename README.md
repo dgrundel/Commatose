@@ -222,7 +222,7 @@ In this example, we have a column that contains a list of available sizes for a 
 // Headers:  ['sizes']
 // Row Data: ['Small,Medium,Large,XL']
 
-$csv->explodeRows('available sizes', ',');
+$csv->explodeRows('sizes', ',');
 
 // Data After
 // Headers:  ['sizes']
