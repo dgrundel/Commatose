@@ -244,6 +244,13 @@ If you'd like to see what your CSV looks like, you can spit out a table:
 echo $csv->toHtml();
 ```
 
+You can also specify limit and offset parameters to only display a subset of rows:
+```
+$limit = 500;
+$offset = 0; //offset is the first index in the data array that will be displayed (not including header)
+echo $csv->toHtml($limit, $offset);
+```
+
 ### Output to a variable (as a string) or to a local file
 
 You can get the text content of the CSV output and save it to a variable using toText:

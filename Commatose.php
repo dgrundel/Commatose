@@ -210,7 +210,7 @@ class Commatose {
 	/*
 	 * Returns the data set as an HTML table with row indexes and headers when present.
 	 */
-	public function toHtml() {
+	public function toHtml($limit = 0, $offset = 0) {
 		$html = '<table>';
 		
 		$html .= '<thead><tr><th>#</th>';
@@ -225,9 +225,14 @@ class Commatose {
 		}
 		$html .= '</tr></thead><tbody>';
 
-		foreach($this->data as $row_index => $row) {
+		$row_count = count($this->data);
+		$limit = intval($limit);
+		$limit = $limit > 0 ? $limit : $row_count;
+		$offset = intval($offset);
+
+		for($row_index = $offset; $row_index < $row_count && $row_index < $limit; $row_index++) {
 			$html .= '<tr><th>' . $row_index . '</th>';
-			foreach($row as $col) {
+			foreach($this->data[$row_index] as $col) {
 				$html .= '<td>' . htmlspecialchars($col) . '</td>';
 			}
 			$html .= '</tr>';
