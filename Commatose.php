@@ -485,12 +485,18 @@ class Commatose {
 	/*
 	 * Returns true when all values in a column are unique
 	 */
-	public function columnValuesUnique($index_or_header) {
+	public function columnValuesUnique($index_or_header, $throw_exception = false) {
 		$col_index = $this->getColIndex($index_or_header);
 
 		$col_values = array_column($this->data, $col_index);
 		$unique_values = array_unique($col_values);
-		return count($col_values) === count($unique_values);
+		$col_unique = count($col_values) === count($unique_values);
+
+		if($throw_exception === true && $col_unique !== true) {
+			throw new Exception("columnValuesUnique: column '{$index_or_header}' not unique.");
+		}
+
+		return $col_unique;
 	}
 
 	/*

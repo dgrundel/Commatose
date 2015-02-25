@@ -99,6 +99,11 @@ For example, in a CSV of products, you might want to verify that your SKU column
 $is_sku_unique = $csv->columnValuesUnique('sku');
 ```
 
+If you're into throwing exceptions, you can ask columnValuesUnique to throw one when the specified column isn't unique by passing true as the second parameter:
+```
+$csv->columnValuesUnique('sku', true); //throws an exception when sku column isn't uniqe
+```
+
 
 
 ### Transform Values in a Column
