@@ -465,7 +465,7 @@ class Commatose {
 	/*
 	 * Explode rows with multiple values per column into many rows with one value per column.
 	 */
-	public function explodeRows($index_or_header, $separator) {
+	public function explodeRows($index_or_header, $separator, $delete_originals = true) {
 		$col_index = $this->getColIndex($index_or_header);
 		$new_rows = array();
 		$delete_rows = array();
@@ -478,7 +478,9 @@ class Commatose {
 					$new_row[$col_index] = $col_value;
 					$new_rows[] = $new_row;
 				}
-				$delete_rows[] = $data_index;
+				if($delete_originals) {
+					$delete_rows[] = $data_index;
+				}
 			}
 		}
 
@@ -571,5 +573,29 @@ class Commatose {
 		} else {
 			$this->updateRowLength();
 		}
+	}
+
+	/*
+	 * Sort rows by a single column using a callback.
+	 */
+	public function sortByColumn($index_or_header, $callable) {
+		$col_index = $this->getColIndex($index_or_header);
+
+		return usort($this->data, function($a, $b) use ($col_index, $callable) {
+			$value_a = $a[$col_index];
+			$value_b = $b[$col_index];
+			return call_user_func_array($callable, array( $value_a, $value_b ));
+		});
+	}
+
+	/*
+	 * Sort rows using a callback. Callback is passed two rows as associative array.
+	 */
+	public function sort($callable) {
+		return usort($this->data, function($a, $b) use ($callable) {
+			$row_a = $this->rowDataToAssociativeArray($a);
+			$row_b = $this->rowDataToAssociativeArray($b);
+			return call_user_func_array($callable, array( $row_a, $row_b ));
+		});
 	}
 }
