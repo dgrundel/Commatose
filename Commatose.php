@@ -242,6 +242,16 @@ class Commatose {
 	}
 
 	/*
+	 * Returns header row as numerically indexed array
+	 */
+	public function getHeaderRow() {
+		if($this->header_row === null) {
+			throw new Exception("getHeaderRow: no header row present.");
+		}
+		return $this->header_row;
+	}
+
+	/*
 	 * Returns true if the column exists in the header row.
 	 */
 	public function columnExists($index_or_header) {
