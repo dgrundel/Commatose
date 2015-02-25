@@ -510,6 +510,40 @@ class Commatose {
 	}
 
 	/*
+	 * Remove non-unique rows from the data set based on a single column
+	 */
+	public function filterUnique($index_or_header) {
+		$col_index = $this->getColIndex($index_or_header);
+
+		$col_values = array_column($this->data, $col_index);
+		$unique_values = array_unique($col_values);
+		if(count($col_values) === count($unique_values)) {
+			//column is unique; nothing to do
+			return;
+		}
+
+		$unique_values = array_flip($unique_values);
+		$delete_rows = array();
+
+		for($data_index = 0; $data_index < count($this->data); $data_index++) {
+			if(isset($unique_values[ $this->data[$data_index][$col_index] ])) {
+				unset($unique_values[ $this->data[$data_index][$col_index] ]);
+			} else {
+				$delete_rows[] = $data_index;
+			}
+		}
+
+		if(count($delete_rows)) {
+			foreach ($delete_rows as $data_index) {
+				unset($this->data[$data_index]);
+			}
+
+			//reindex
+			$this->data = array_values($this->data);
+		}
+	}
+
+	/*
 	 * Combine the values of two or more columns using a callback function to modify the values
 	 */
 	public function combineColumns(array $indexes_or_headers, $new_header, $callable, $deleteColumns = false) {
