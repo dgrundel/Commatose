@@ -134,6 +134,23 @@ $csv->transformColumn('file name', function($columnData){
 // Row Data: ['/some/root/path/product_image.jpg']
 ```
 
+#### transformColumn Example #2
+
+Now imagine we have the folder path we need in another column called 'Image Folder':
+```
+// Data Before
+// Headers:  ['file name', 'Image Folder']
+// Row Data: ['product_image.jpg', '/my/awesome/file/path/']
+
+$csv->transformColumn('file name', function($columnData, $rowData){
+	return $rowData['Image Folder'] . $columnData;
+})
+
+// Data After
+// Headers:  ['file name', 'Image Folder']
+// Row Data: ['/my/awesome/file/path/product_image.jpg', '/my/awesome/file/path/']
+```
+
 
 
 ### Explode a Column into Many Columns
