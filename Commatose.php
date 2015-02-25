@@ -271,13 +271,34 @@ class Commatose {
 	}
 
 	/*
+	 * Convert a row of data to an associative array where the keys are pulled from the header row.
+	 */
+	public function rowDataToAssociativeArray(array $data) {
+		if(count($data) !== $this->row_length) {
+			throw new Exception("rowDataToAssociativeArray: data is wrong length.");
+		}
+
+		if($this->header_row === null) {
+			throw new Exception("rowDataToAssociativeArray: no header row present.");
+		}
+
+		return array_combine($this->header_row, $data);
+	}
+
+	/*
 	 * Applies a callback function to each row of a particular column in the data set.
+	 *
+	 * The callback function is passed two arguments: the first is the column value,
+	 * the second is an associative array of the entire row of data.
 	 */
 	public function transformColumn($index_or_header, $callable) {
 		$col_index = $this->getColIndex($index_or_header);
 
 		for($data_index = 0; $data_index < count($this->data); $data_index++) {
-			$this->data[$data_index][$col_index] = call_user_func($callable, $this->data[$data_index][$col_index]);
+			$this->data[$data_index][$col_index] = call_user_func_array($callable, array(
+				$this->data[$data_index][$col_index],
+				$this->rowDataToAssociativeArray($this->data[$data_index]),
+			));
 		}
 	}
 

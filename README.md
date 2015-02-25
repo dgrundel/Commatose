@@ -3,8 +3,6 @@ Manipulate CSV files on the fly with ease.
 
 ## Usage
 
-**See source code and source comments for additional usage information.**
-
 
 
 ### Instantiate and Load CSV Data
@@ -107,7 +105,9 @@ $is_sku_unique = $csv->columnValuesUnique('sku');
 
 transformColumn lets you apply a function to every value in a column. It's like array_map for a single column.
 
-You can use a lambda or anything that call_user_func accepts.
+You can use a lambda or anything that call_user_func(array) accepts.
+
+The callable function is passed two arguments: (1) the column value that you are manipulating and (2) an associative array of the entire row of data.
 ```
 $csv->transformColumn($index_or_header, $callable)
 ```
