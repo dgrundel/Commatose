@@ -466,12 +466,21 @@ class Commatose {
 	 * Explode rows with multiple values per column into many rows with one value per column.
 	 */
 	public function explodeRows($index_or_header, $separator, $delete_originals = true) {
+		$this->explodeRowsByCallback($index_or_header, function($col_value) use ($separator) {
+			return explode($separator, $col_value);
+		}, $delete_originals);
+	}
+
+	/*
+	 * Explode rows using a callback function.
+	 */
+	public function explodeRowsByCallback($index_or_header, $callable, $delete_originals = true) {
 		$col_index = $this->getColIndex($index_or_header);
 		$new_rows = array();
 		$delete_rows = array();
 
 		for($data_index = 0; $data_index < count($this->data); $data_index++) {
-			$col_values = explode($separator, $this->data[$data_index][$col_index]);
+			$col_values = call_user_func_array($callable, array($this->data[$data_index][$col_index]));
 			if(count($col_values) > 1) {
 				$new_row = $this->data[$data_index];
 				foreach ($col_values as $col_value) {
